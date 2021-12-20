@@ -24,7 +24,8 @@ class ServiceModule:
 
 @dataclass
 class Parser(object):
-    
+   
+    parsefile: str
  # run_job does the actual job using the other functions.
     def run_job(self):
         """Execute a parser job"""
@@ -74,7 +75,7 @@ class Parser(object):
     def parse_file(self):
         """Parse single JSON object into a LogData object"""
         data_set = []
-        sourcepath = sys.argv[1]
+        sourcepath = self.parsefile
         with open(sourcepath, 'r') as logfile:
             for line in logfile:
                 data_set.append(self.load_parse(line))
@@ -109,13 +110,13 @@ class Parser(object):
                 state = True
         return service_set
 
-def main():
-    parser = Parser()
-    #parser.parse_file()
-    res = parser.fliter_service()
-    print(res)
-    #parser.run_job()
-    # syslogPath = sys.argv[1]
-
-if __name__ == "__main__":
-    main()
+#def main():
+#    parser = Parser("/var/log/atftpd.log")
+#    #parser.parse_file()
+#    res = parser.fliter_service()
+#    print(res)
+#    #parser.run_job()
+#    # syslogPath = sys.argv[1]
+#
+#if __name__ == "__main__":
+#    main()
