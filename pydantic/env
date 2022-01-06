@@ -1,0 +1,4 @@
+tftp_path= '/var/log/atftpd.log'
+dhcp_path= '/var/lib/dhcp/dhcpd.leases'
+tftp_server= 'atftp'
+dhcp_server= 'isc-dhcp'
