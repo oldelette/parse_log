@@ -9,10 +9,11 @@ class SystemdService:
     """A systemd service object with methods to check it's activity, and to stop() and start() it."""
 
     service: str
-    sudo_password: str = field(repr=False, init=False, default="xxxx")
+    sudo_password: str = field(repr=False, init=False, default="0710")
 
     def runsudo(self):
         sudoer = subprocess.Popen(["echo", self.sudo_password], stdout=subprocess.PIPE)
+        subprocess.run(["sudo", "-S", "echo"], stdin=sudoer.stdout)  # init first time
         return sudoer.stdout
 
     def is_active(self) -> bool:
@@ -24,18 +25,23 @@ class SystemdService:
         if completed.stdout:
             print(
                 completed.stdout.decode("utf-8"),
+                # completed.stdout.decode("utf-8").find("active (running)"),
             )
-            return any(
-                [
-                    True if "Active:" and "active (running)" in line else False
-                    for line in completed.stdout.decode("utf-8").splitlines()
-                ]
-            )
+            return bool(completed.stdout.decode("utf-8").find("active (running)") != -1)
+            # if completed.stdout.decode("utf-8").find("active (running)") != -1:
+            #     return True
+            # else:
+            #     return False
+
+            # return any(
+            #     [
+            #         True if "Active:" and "active (running)" in line else False
+            #         for line in completed.stdout.decode("utf-8").splitlines()
+            #     ]
+            # )
 
         elif completed.stderr:
-            print(
-                completed.stderr.decode("utf-8"),
-            )
+            print(completed.stderr.decode("utf-8"))
             return False
 
     def stop(self) -> bool:
@@ -48,7 +54,7 @@ class SystemdService:
             stderr=subprocess.PIPE,
         )
         if completed.stderr:
-            print(completed.stderr.decode("utf-8"))
+            print("stop error: ", completed.stderr.decode("utf-8"))
             return False
         print(f"stop {self.service} success")
         return True
@@ -66,7 +72,7 @@ class SystemdService:
             stderr=subprocess.PIPE,
         )
         if completed.stderr:
-            print(completed.stderr.decode("utf-8"))
+            print("start error: ", completed.stderr.decode("utf-8"))
             return False
         print(f"start {self.service} success")
         return True
@@ -90,7 +96,7 @@ class SystemdService:
 if __name__ == "__main__":
 
     monitor = SystemdService(sys.argv[1])
-    monitor.start()
-    # monitor.is_active()
-    # monitor.stop()
+    # print(monitor.start())
+    print(monitor.is_active())
+    # print(monitor.stop())
     # monitor.restart()
